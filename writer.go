@@ -175,7 +175,7 @@ func (w *Writer) Write(values ...interface{}) error {
 // ColumnIterator ...
 type ColumnIterator interface {
 	// Range iterates [from,until)
-	Range(from int, until  int, f func(int, interface{}))
+	Range(from int, until  int, f func(int, interface{}) error) error
 	// Count returns the total length of the column
 	Count() int
 }
@@ -192,18 +192,23 @@ func (w *Writer) WriteColumns(ColumnIterators []ColumnIterator) error {
 		colLength,
 	)
 
-	// Writes empty top level struct as we can assume it is non nil
-	for i:=0 ; i<colLength ; i++ {
-		_ = w.treeWriter.(*StructTreeWriter).BaseTreeWriter.Write(struct{}{})
-
-	}
-
 	for from < colLength {
+		// Writes empty top level struct as we can assume it is non nil
+		for i:=from;i<until;i++ {
+			if err := w.treeWriter.(*StructTreeWriter).BaseTreeWriter.Write(struct{}{}); err != nil {
+				return err
+			}
+		}
+
 		for i, col := range ColumnIterators {
 			colWriter := w.treeWriter.(*StructTreeWriter).children[i]
-			col.Range(from, until, func(_ int, v interface{}) {
-				_ = colWriter.Write(v)
+			err := col.Range(from, until, func(_ int, v interface{}) error {
+				return colWriter.Write(v)
 			})
+
+			if err != nil {
+				return err
+			}
 		}
 
 		w.totalRows += uint64(until-from)

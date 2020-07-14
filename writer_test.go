@@ -534,15 +534,17 @@ type Column struct {
 	Data []interface{}
 }
 
-func (c *Column) Range(from int, until int, f func(int, interface{})) {
+func (c *Column) Range(from int, until int, f func(int, interface{}) error) error{
 	for i := from; i < until; i++ {
 		if i >= len(c.Data) {
 			break
 		}
-		f(i, c.Data[i])
+		if err := f(i, c.Data[i]); err != nil {
+			return err
+		}
 	}
 
-	return
+	return nil
 }
 
 func (c *Column) Count() int {
