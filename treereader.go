@@ -691,12 +691,6 @@ type FloatTreeReader struct {
 }
 
 func (r *FloatTreeReader) Next() bool {
-	if !r.BaseTreeReader.Next() {
-		return false
-	}
-	if !r.BaseTreeReader.IsPresent() {
-		return true
-	}
 	return r.BaseTreeReader.Next()
 }
 

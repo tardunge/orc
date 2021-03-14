@@ -473,7 +473,7 @@ func TestWriterWithNils(t *testing.T) {
 	defer os.Remove(filename)
 	defer f.Close()
 
-	schema, err := ParseSchema("struct<int1:int>")
+	schema, err := ParseSchema("struct<double1:double>")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -489,7 +489,7 @@ func TestWriterWithNils(t *testing.T) {
 		if i%5 == 0 {
 			values[i] = nil
 		} else {
-			values[i] = int64(i)
+			values[i] = Double(i)
 		}
 		err := w.Write(values[i])
 		if err != nil {
@@ -508,7 +508,7 @@ func TestWriterWithNils(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	c := r.Select("int1")
+	c := r.Select("double1")
 
 	var row int
 	for c.Stripes() {
